@@ -92,4 +92,5 @@ def split_content(content, max_length=5000) -> str | List[str]:
 if __name__ == '__main__':
     sys.setrecursionlimit(5000)
     analyze()
+    driver.close()
     print('Complete!')
