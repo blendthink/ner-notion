@@ -1,31 +1,72 @@
 import spacy
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.common.exceptions import WebDriverException
+from selenium.webdriver.chrome.service import Service as ChromeService
+from webdriver_manager.chrome import ChromeDriverManager
+from tqdm import tqdm
+import logging
+from settings import TARGET_URL
+
+logging.basicConfig(
+    level=logging.WARNING,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    handlers=[
+        logging.FileHandler('outputs.log')
+    ]
+)
+logger = logging.getLogger()
+
+nlp = spacy.load('ja_ginza')
+
+driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
+
+analyze_urls = {
+    TARGET_URL: False
+}
 
 
-def analyze(content):
-    nlp = spacy.load('ja_ginza')
+def analyze():
+    try:
+        filtered_urls = dict(filter(lambda item: not item[1], analyze_urls.items()))
+        url, _ = filtered_urls.popitem()
+        analyze_urls[url] = True
+        driver.get(url)
+        logger.warning(url)
+        root = driver.find_element(by=By.CLASS_NAME, value='notion-root')
+        elements = root.find_elements(by=By.CLASS_NAME, value='notion-semantic-string')
+        for element in tqdm(elements, desc='analyzing'):
+            content = element.get_attribute('innerHTML')
+            extract(content)
+
+        link_elements = root.find_elements(by=By.CLASS_NAME, value='notion-link')
+        urls = map(lambda link_element: link_element.get_attribute('href'), link_elements)
+        for url in urls:
+            if url is not str:
+                continue
+            if should_add_analyze_urls(url):
+                analyze_urls[url] = False
+    except WebDriverException as e:
+        logger.error(e.msg)
+
+    if analyze_urls:
+        analyze()
+
+
+def should_add_analyze_urls(url: str) -> bool:
+    if not url.startswith(TARGET_URL):
+        return False
+    if url in analyze_urls:
+        return False
+    return True
+
+
+def extract(content):
     doc = nlp(content)
-
-    for sent in doc.sents:
-        for token in sent:
-            info = [
-                token.i,  # トークン番号
-                token.text,  # テキスト
-                token.lemma_,  # 基本形
-                token.pos_,  # 品詞
-                token.tag_,  # 品詞詳細
-            ]
-            if token.tag_.__contains__('人名'):
-                print(info)
-
     for ent in doc.ents:
         if ent.label_.__eq__('Person'):
-            print(
-                ent.text + ',' +  # テキスト
-                ent.label_ + ',' +  # ラベル
-                str(ent.start_char) + ',' +  # 開始位置
-                str(ent.end_char)  # 終了位置
-            )
+            logger.warning(ent.text)
 
 
 if __name__ == '__main__':
-    analyze('恵比寿にあるあのイタリアンには太郎とよく行く。美味しいんだ。')
+    analyze()

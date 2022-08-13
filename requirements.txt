@@ -1,3 +1,7 @@
 ginza==5.1.2
 ja-ginza==5.1.2
 spacy==3.4.1
+selenium==4.4.0
+webdriver_manager==3.8.3
+tqdm==4.64.0
+python-dotenv==0.20.0
