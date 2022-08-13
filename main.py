@@ -38,8 +38,8 @@ def analyze():
         root = driver.find_element(by=By.CLASS_NAME, value='notion-root')
         elements = root.find_elements(by=By.CLASS_NAME, value='notion-semantic-string')
         for element in tqdm(elements, desc='analyzing'):
-            content = element.get_attribute('innerHTML')
-            extract(content)
+            contents = element.get_attribute('innerHTML')
+            extracts(contents)
 
         link_elements = root.find_elements(by=By.CLASS_NAME, value='notion-link')
         urls = map(lambda link_element: link_element.get_attribute('href'), link_elements)
@@ -63,19 +63,26 @@ def should_add_analyze_urls(url: str) -> bool:
     return True
 
 
+def extracts(contents):
+    split_contents = split_content(contents)
+    if type(split_contents) is str:
+        extract(split_contents)
+    else:
+        for content in split_contents:
+            extract(content)
+
+
 def extract(content):
-    split_contents = split_content(content)
-    for content in tqdm(split_contents, desc='analyzing split-contents'):
-        doc = nlp(content)
-        for ent in doc.ents:
-            if ent.label_.__eq__('Person'):
-                logger.error(ent.text)
+    doc = nlp(content)
+    for ent in doc.ents:
+        if ent.label_.__eq__('Person'):
+            logger.error(ent.text)
 
 
 # Tokenization error: Input is too long, it can't be more than 49149 bytes, was 83630
-def split_content(content, max_length=5000) -> List[str]:
+def split_content(content, max_length=5000) -> str | List[str]:
     if len(content) < max_length:
-        return [content]
+        return content
 
     return [content[i:i + 5000] for i in range(0, len(content), 5000)]
 
