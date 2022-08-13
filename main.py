@@ -42,7 +42,7 @@ def analyze():
         link_elements = root.find_elements(by=By.CLASS_NAME, value='notion-link')
         urls = map(lambda link_element: link_element.get_attribute('href'), link_elements)
         for url in urls:
-            if url is not str:
+            if url is None:
                 continue
             if should_add_analyze_urls(url):
                 analyze_urls[url] = False
