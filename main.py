@@ -3,6 +3,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.chrome.service import Service as ChromeService
+from typing import List
 from webdriver_manager.chrome import ChromeDriverManager
 from tqdm import tqdm
 import logging
@@ -48,7 +49,7 @@ def analyze():
             if should_add_analyze_urls(url):
                 analyze_urls[url] = False
     except WebDriverException as e:
-        logger.error(e.msg)
+        logger.warning(e.msg)
 
     if any(analyze_urls.values()):
         analyze()
@@ -63,12 +64,23 @@ def should_add_analyze_urls(url: str) -> bool:
 
 
 def extract(content):
-    doc = nlp(content)
-    for ent in doc.ents:
-        if ent.label_.__eq__('Person'):
-            logger.warning(ent.text)
+    split_contents = split_content(content)
+    for content in tqdm(split_contents, desc='analyzing split-contents'):
+        doc = nlp(content)
+        for ent in doc.ents:
+            if ent.label_.__eq__('Person'):
+                logger.error(ent.text)
+
+
+# Tokenization error: Input is too long, it can't be more than 49149 bytes, was 83630
+def split_content(content, max_length=5000) -> List[str]:
+    if len(content) < max_length:
+        return [content]
+
+    return [content[i:i + 5000] for i in range(0, len(content), 5000)]
 
 
 if __name__ == '__main__':
     sys.setrecursionlimit(5000)
     analyze()
+    print('Complete!')
