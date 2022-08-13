@@ -49,7 +49,7 @@ def analyze():
     except WebDriverException as e:
         logger.error(e.msg)
 
-    if analyze_urls:
+    if any(analyze_urls.values()):
         analyze()
 
 
