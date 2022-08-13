@@ -7,6 +7,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from tqdm import tqdm
 import logging
 from settings import TARGET_URL
+import sys
 
 logging.basicConfig(
     level=logging.WARNING,
@@ -69,4 +70,5 @@ def extract(content):
 
 
 if __name__ == '__main__':
+    sys.setrecursionlimit(5000)
     analyze()
