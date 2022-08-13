@@ -1,16 +1,31 @@
-# This is a sample Python script.
-
-# Press ⌃R to execute it or replace it with your code.
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
+import spacy
 
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press ⌘F8 to toggle the breakpoint.
+def analyze(content):
+    nlp = spacy.load('ja_ginza')
+    doc = nlp(content)
+
+    for sent in doc.sents:
+        for token in sent:
+            info = [
+                token.i,  # トークン番号
+                token.text,  # テキスト
+                token.lemma_,  # 基本形
+                token.pos_,  # 品詞
+                token.tag_,  # 品詞詳細
+            ]
+            if token.tag_.__contains__('人名'):
+                print(info)
+
+    for ent in doc.ents:
+        if ent.label_.__eq__('Person'):
+            print(
+                ent.text + ',' +  # テキスト
+                ent.label_ + ',' +  # ラベル
+                str(ent.start_char) + ',' +  # 開始位置
+                str(ent.end_char)  # 終了位置
+            )
 
 
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    analyze('恵比寿にあるあのイタリアンには太郎とよく行く。美味しいんだ。')
