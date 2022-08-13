@@ -51,7 +51,7 @@ def analyze():
     except WebDriverException as e:
         logger.warning(e.msg)
 
-    if any(analyze_urls.values()):
+    if not all(analyze_urls.values()):
         analyze()
 
 
@@ -68,7 +68,7 @@ def extracts(contents):
     if type(split_contents) is str:
         extract(split_contents)
     else:
-        for content in split_contents:
+        for content in tqdm(split_contents, leave=False, desc='analyzing split_contents'):
             extract(content)
 
 
