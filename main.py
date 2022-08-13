@@ -14,12 +14,14 @@ logging.basicConfig(
     level=logging.WARNING,
     format='%(asctime)s [%(levelname)s] %(message)s',
     handlers=[
-        logging.FileHandler('outputs.log')
+        # logging.FileHandler('outputs.log')
+        logging.FileHandler('outputs.electra.log')
     ]
 )
 logger = logging.getLogger()
 
-nlp = spacy.load('ja_ginza')
+# nlp = spacy.load('ja_ginza')
+nlp = spacy.load('ja_ginza_electra')
 
 driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
 

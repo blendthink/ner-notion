@@ -1,5 +1,6 @@
 .idea/
 .env
 outputs.log
+outputs.electra.log
 *.pyc
 __pycache__/
