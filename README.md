@@ -1,8 +1,12 @@
+> **Warning**\
+> Avoid running programs on sites other than you own.\
+> It puts a load on Notion-sites.
+
 ## Features
 
 Extracts person names from [Notion]-sites constructed using [Super].
 
-> **Warning**\
+> **Note**\
 > [Wraptas], etc. are not supported.
 
 ## Getting started
