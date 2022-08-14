@@ -4,3 +4,4 @@ outputs.log
 outputs.electra.log
 *.pyc
 __pycache__/
+venv/
